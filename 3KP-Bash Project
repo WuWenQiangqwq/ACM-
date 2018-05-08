@@ -110,6 +110,67 @@ namespace wwq_bash
       f->SonFile.push_back(new FileNode(path[path.rbegin()],f->path +"/"+path[path.rbegin()],f,0,true,h);
       return ans;
   }
+  answerset& find(const Cmd& path,const Cmd& args)
+  {
+      FileNode* f,son_f;
+      	queue<FileNode*> bfs;
+      bool h,r;
+      for(int i=0;i<args.size();i++)
+      {
+        if(args[i]=="-h") h=true;
+        if(args[i]=="-r") r=true;
+      }
+      bfs.push(f);
+      while(!bfs.empty())
+      {
+         f=bfs.front(); bfs.pop();
+	 if(f->hidden<=h)
+            ans.push_back(f->path+"  "+f->size);
+         for(int i=0;i<f->SonFile.size();i++)
+         {
+           son_f =SonFile[i];
+           if(r) bfs.push(son_f);
+         }
+      }
+     sort(begin(ans),end(ans));
+     if(ans.size()==0) return ErrorHandle(UNFIND);
+     return ans;
+  }
+    answerset& ls(const Cmd& path,const Cmd& args)
+  {
+      FileNode* f,son_f;
+      	queue<FileNode*> bfs;
+      vector<FileNode*> FileAns;
+      bool h,r,s=false,d=false,ff=false;
+      for(int i=0;i<args.size();i++)
+      {
+        if(args[i]=="-h") h=true;
+        if(args[i]=="-r") r=true;
+	if(args[i]=="-S") s=true;
+        if(args[i]=="-f") ff=true;
+        if(args[i]=="-d") d=true;
+      }
+      bfs.push(f);
+      while(!bfs.empty())
+      {
+         f=bfs.front(); bfs.pop();
+	 if(f->hidden<=h&&((d==f->mdr)||(!d&&!h))
+           {
+              FileAns.push_back(f);
+           }
+         for(int i=0;i<f->SonFile.size();i++)
+         {
+           son_f =SonFile[i];
+           if(r) bfs.push(son_f);
+         }
+      }
+     auto s1 =[](FileNode* a,FileNode* b) { return a->size==b->size?a->path<b->path: a->size<b->size};
+     auto s2 =[](FileNode* a,FileNode* b) { return a->size==b->size?a->path>b->path: a->size>b->size};
+     sort(begin(FileAns),end(FileAns),s?s1:s2);
+     for(auto &cell :FileAns) ans.push_back(cell->path);
+     if(ans.size()==0) return ErrorHandle(UNFIND);
+     return ans;
+  }
   answerset& cd(const Cmd& path)
   {
       FileNode* f;
@@ -202,6 +263,6 @@ namespace wwq_bash
 }
 int main()
 {
-    init();
+    wwq_bash::init();
     return 0;
 }
